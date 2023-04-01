@@ -6,6 +6,7 @@
     margin-top: 40px;
     text-align: center;
     padding: 20px;
+    cursor: pointer;
 
 }
 
@@ -31,3 +32,14 @@
     padding: 5px;
     font-size: 30px;
 }
+
+#att_paciente{
+    display: none;
+}
+
+#form-att-paciente{
+    display: none;
+}
+
+
+

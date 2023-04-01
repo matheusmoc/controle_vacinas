@@ -11,17 +11,29 @@
       <p class="text-card">Atualizar paciente</p>
     </div>
   </div>
-  <div class="adicionar-cliente">
+  <div id="add_paciente" class="adicionar-paciente">
     <form action="{% url 'pacientes' %}" method="POST">
       {% csrf_token %}
       <div class="row">
         <div class="col-md">
           <p>Nome:</p>
-          <input type="text" class="form-control" placeholder="Primeiro nome" name="nome" value="{{nome}}" />
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Primeiro nome"
+            name="nome"
+            value="{{nome}}"
+          />
         </div>
         <div class="col-md">
           <p>Sobrenome:</p>
-          <input type="text" class="form-control" placeholder="Sobrenome" name="sobrenome" value="{{sobrenome}}"/>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Sobrenome"
+            name="sobrenome"
+            value="{{sobrenome}}"
+          />
         </div>
       </div>
       <br />
@@ -44,23 +56,42 @@
       />
       <hr style="background-color: gray" />
 
-
       <div class="add-carros">
-        <span class="btn-add-carros" onclick="add_carro()">Registrar vacinas +</span>
+        <span class="btn-add-carros" onclick="add_carro()"
+          >Registrar vacinas +</span
+        >
         <div id="form-carro">
           {%for vacina, fabricante, codigo in vacinas %}
-          <br>
+          <br />
           <div class="row">
             <div class="col-md">
-              <input type='text' placeholder='Vacina' class='form-control' name='vacina' value="{{vacina}}">
+              <input
+                type="text"
+                placeholder="Vacina"
+                class="form-control"
+                name="vacina"
+                value="{{vacina}}"
+              />
             </div>
 
             <div class="col-md">
-              <input type='text' placeholder='Fabricante' class='form-control' name='fabricante' value="{{fabricante}}">
+              <input
+                type="text"
+                placeholder="Fabricante"
+                class="form-control"
+                name="fabricante"
+                value="{{fabricante}}"
+              />
             </div>
 
             <div class="col-md">
-              <input type='number' placeholder='Cód.' class='form-control' name='codigo' value="{{codigo}}">
+              <input
+                type="number"
+                placeholder="Cód."
+                class="form-control"
+                name="codigo"
+                value="{{codigo}}"
+              />
             </div>
           </div>
           {% endfor %}
@@ -69,6 +100,49 @@
       <br />
       <input type="submit" value="Cadastrar" class="btn-principal" />
     </form>
+  </div>
+
+  <div id="att_paciente">
+    <p></p>
+    <select
+      id="paciente_select"
+      onchange="dados_paciente()"
+      class="form-control"
+    >
+      {% for paciente in pacientes%}
+      <option value="{{paciente.id}}">
+        {{paciente.nome}} | {{paciente.cpf}}
+      </option>
+      {%endfor%}
+    </select>
+
+    <br />
+    <hr />
+
+    <div id="form-att-paciente">
+      <input type="hidden" id="id" />
+      <p>Nome:</p>
+      <input id="nome" type="text" class="form-control" />
+      <p>Sobrenome:</p>
+      <input id="sobrenome" type="text" class="form-control" />
+      <p>E-mail:</p>
+      <input id="email" type="text" class="form-control" />
+      <p>CPF:</p>
+      <input id="cpf" type="text" class="form-control" />
+      <br />
+      <input
+        onclick="update_cliente()"
+        type="submit"
+        value="salvar"
+        class="btn btn-success"
+      />
+      <hr style="background-color: gray" />
+      <h2>Vacinas</h2>
+
+      <div id="carros"></div>
+    </div>
+
+    
   </div>
 
   <script src="{% static 'pacientes/js/paciente.js' %}"></script>

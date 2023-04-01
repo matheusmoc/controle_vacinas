@@ -1,12 +1,15 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from .models import Paciente, Vacina
 import re
+from django.core import serializers
+import json
 
 
 def pacientes(request):
     if request.method == 'GET':
-        return render(request, 'pacientes.html')
+        pacientes_list = Paciente.objects.all()
+        return render(request, 'pacientes.html', {'pacientes': pacientes_list})
     elif request.method == 'POST':
         nome = request.POST.get('nome')
         sobrenome = request.POST.get('sobrenome')
@@ -42,3 +45,13 @@ def pacientes(request):
             vac.save()
 
         return HttpResponse('teste')
+
+
+
+
+def att_paciente(request):
+    id_paciente = request.POST.get('id_paciente')
+    paciente = Paciente.objects.filter(id=id_paciente)
+    paciente_json = json.loads(serializers.serialize('json', paciente))[0]['fields']
+    # print(cliente_json)
+    return JsonResponse(paciente_json)
