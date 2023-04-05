@@ -1,6 +1,18 @@
 function add_carro(){
     container = document.getElementById("form-carro")
-    html = "<br><div class='row'> <div class='col-md'> <input type='text' placeholder='Vacina' class='form-control' name='vacina'></div> <div class='col-md'> <input type='text' placeholder='Fabricante' class='form-control' name='fabricante'> </div> <div class='col-md'><input type='number' placeholder='Cód.' class='form-control' name='codigo'> </div></div>"
+    html = 
+    "<br>\
+    <div class='row'> \
+        <div class='col-md'> \
+            <input type='text' placeholder='Vacina' class='form-control' name='vacina'>\
+        </div>\
+        <div class='col-md'>\
+            <input type='text' placeholder='Fabricante' class='form-control' name='fabricante'>\
+        </div>\
+        <div class='col-md'>\
+            <input type='number' placeholder='Cód.' class='form-control' name='codigo'>\
+        </div>\
+    </div>"
     container.innerHTML += html
 }
 
@@ -36,18 +48,40 @@ function dados_paciente(){
     }).then(function(result){
         return result.json()
     }).then(function(data){
+        
         // console.log(data)
-        document.querySelector('#form-att-paciente').style.display = "block"
-        nome = document.querySelector('#nome')
-        nome.value = data['nome']
+        
+        aux = document.querySelector('#form-att-paciente')
+        aux.style.display = "block"
+        
+        nome = document.querySelector('#nome').value = data['paciente']['nome']
+        sobrenome = document.querySelector('#sobrenome').value = data['paciente']['sobrenome']
+        cpf = document.querySelector('#cpf').value = data['paciente']['cpf']
+        email = document.querySelector('#email').value = data['paciente']['email']
 
-        sobrenome = document.querySelector('#sobrenome')
-        sobrenome.value = data['sobrenome']
-
-        cpf = document.querySelector('#cpf')
-        cpf.value = data['cpf']
-
-        email = document.querySelector('#email')
-        email.value = data['email']
+        div_vacinas = document.querySelector('#vacinas')
+        div_vacinas.innerHTML = ""  //evita incremento
+        
+        for(i=0; i<data['vacinas'].length; i++){
+            // console.log(data['vacinas'][i]['fields']['vacina'])
+            div_vacinas.innerHTML += "\<form action ='/pacientes/update_vacina/"+data['vacinas'][i]['id']+"' method='POST'>\
+            <div class='row'>\
+                <div class='col-md'>\
+                    <input type='text' name='vacina' class='form-control' placeholder='Nome da Vacina' value='"+ data['vacinas'][i]['fields']['vacina']+"'>\
+                </div>\
+                <div class='col-md'>\
+                    <input type='text' name='fabricante' class='form-control' placeholder='Fabricante' value='"+ data['vacinas'][i]['fields']['fabricante']+"'>\
+                </div>\
+                <div class='col-md'>\
+                    <input type='number' name='codigo' class='form-control' placeholder='Código' value='"+ data['vacinas'][i]['fields']['codigo']+"'>\
+                </div>\
+                <div class='col-md'>\
+                    <button class='btn btn-primary' type='submit'>Salvar</button>\
+                </div>\
+                </form>\
+                <a class='btn btn-danger' href='/pacientes/excluir_vacina/"+data['vacinas'][i]['id']+"'>Excluir</a>\
+            </div><br>\
+            "
+        }
     })
 }

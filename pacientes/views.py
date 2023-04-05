@@ -4,6 +4,9 @@ from .models import Paciente, Vacina
 import re
 from django.core import serializers
 import json
+from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
+from django.shortcuts import redirect
 
 
 def pacientes(request):
@@ -51,7 +54,48 @@ def pacientes(request):
 
 def att_paciente(request):
     id_paciente = request.POST.get('id_paciente')
+    
     paciente = Paciente.objects.filter(id=id_paciente)
-    paciente_json = json.loads(serializers.serialize('json', paciente))[0]['fields']
+    vacinas = Vacina.objects.filter(paciente = paciente[0])
+    # print(vacinas)
+    
+
+    pacientes_json = json.loads(serializers.serialize('json', paciente))[0]['fields']
     # print(cliente_json)
-    return JsonResponse(paciente_json)
+    vacinas_json = json.loads(serializers.serialize('json', vacinas))
+    vacinas_json = [ {'fields': vacina['fields'], 'id': vacina['pk']} for vacina in vacinas_json ]
+    # print(vacinas_json)
+    
+    data = {'paciente': pacientes_json, 'vacinas': vacinas_json}
+    return JsonResponse(data)
+
+@csrf_exempt
+def update_vacina(request, id):
+        
+        nome_vacina = request.POST.get('vacina')
+        codigo = request.POST.get('codigo')
+        fabricante = request.POST.get('fabricante')
+        if not nome_vacina or not codigo  or not fabricante:
+            return HttpResponse('O campo vacina é obrigatório.')
+
+        vacina = Vacina.objects.get(id=id)
+        list_vacina = Vacina.objects.filter(codigo=codigo).exclude(id=id)
+        if list_vacina.exists():
+             return HttpResponse('A vacina já foi aplicada neste paciente')
+        
+        
+        vacina.vacina = nome_vacina
+        vacina.codigo = codigo
+        vacina.fabricante = fabricante
+        vacina.save()
+        return HttpResponse("Dados alterados com sucesso!")
+
+        
+def excluir_vacina(request, id):
+    try:
+        vacina = Vacina.objects.get(id=id)
+        vacina.delete()
+        return redirect(reverse('pacientes') + f'?aba=att_paciente&id_paciente={id}')
+    except:
+        return redirect(reverse('pacientes') + f'?aba=att_paciente&id_paciente={id}')
+             

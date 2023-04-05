@@ -1,6 +1,7 @@
 {% extends "base.html" %} {% load static %} {% block 'head' %}
 <link rel="stylesheet" href="{% static 'pacientes/css/pacientes.css' %}" />
 {% endblock %} {% block 'dashboard' %}
+
 <div class="container">
   <div class="row">
     <div onclick="exibir_form('1')" class="col-md card-dashboard">
@@ -131,7 +132,7 @@
       <input id="cpf" type="text" class="form-control" />
       <br />
       <input
-        onclick="update_cliente()"
+        onclick="update_paciente()"
         type="submit"
         value="salvar"
         class="btn btn-success"
@@ -139,7 +140,7 @@
       <hr style="background-color: gray" />
       <h2>Vacinas</h2>
 
-      <div id="carros"></div>
+      <div id="vacinas"></div>
     </div>
 
     
