@@ -1,4 +1,5 @@
-{% extends "base.html" %} {% load static %} {% block 'head' %}
+{% extends "base.html" %} {% load static %} 
+{% block 'head' %}
 <link rel="stylesheet" href="{% static 'pacientes/css/pacientes.css' %}" />
 {% endblock %} {% block 'dashboard' %}
 
@@ -110,6 +111,7 @@
       onchange="dados_paciente()"
       class="form-control"
     >
+    <option value=""></option>
       {% for paciente in pacientes%}
       <option value="{{paciente.id}}">
         {{paciente.nome}} | {{paciente.cpf}}
@@ -138,8 +140,8 @@
         class="btn btn-success"
       />
       <hr style="background-color: gray" />
+      
       <h2>Vacinas</h2>
-
       <div id="vacinas"></div>
     </div>
 

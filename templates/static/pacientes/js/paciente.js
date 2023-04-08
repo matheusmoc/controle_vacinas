@@ -54,6 +54,8 @@ function dados_paciente(){
         aux = document.querySelector('#form-att-paciente')
         aux.style.display = "block"
         
+        id = document.querySelector('#id').value = data['pegar_id_pacientes']['pk']
+        // console.log(data['pegar_id_pacientes']['pk'])
         nome = document.querySelector('#nome').value = data['paciente']['nome']
         sobrenome = document.querySelector('#sobrenome').value = data['paciente']['sobrenome']
         cpf = document.querySelector('#cpf').value = data['paciente']['cpf']
@@ -82,6 +84,39 @@ function dados_paciente(){
                 <a class='btn btn-danger' href='/pacientes/excluir_vacina/"+data['vacinas'][i]['id']+"'>Excluir</a>\
             </div><br>\
             "
+        }
+    })
+}
+
+function update_paciente(){
+    id = document.querySelector('#id').value
+    nome = document.querySelector('#nome').value
+    sobrenome = document.querySelector('#sobrenome').value
+    email = document.querySelector('#email').value
+    cpf = document.querySelector('#cpf').value
+
+    fetch('/pacientes/update_paciente/'+ id, {
+        method: "POST",
+        headers:{
+            'X-CSRFToken': csrf_token,
+        },
+        body: JSON.stringify({
+            nome: nome,
+            sobrenome: sobrenome,
+            email: email,
+            cpf : cpf
+        })
+    }).then(function(result){
+        return result.json()
+    }).then(function(data){
+        if( data['status'] == 200 )  {
+            nome = data['nome']
+            sobrenome = data['sobrenome']
+            email = data['email']
+            cpf = data['cpf']
+            console.log('Dados alterados com sucesso!')
+        }else{
+            console.log('Erro interno ao submeter dados do formulário')
         }
     })
 }

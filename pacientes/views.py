@@ -6,7 +6,8 @@ from django.core import serializers
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
+                                        #findOrFail
 
 
 def pacientes(request):
@@ -61,12 +62,14 @@ def att_paciente(request):
     
 
     pacientes_json = json.loads(serializers.serialize('json', paciente))[0]['fields']
-    # print(cliente_json)
+    pegar_id_pacientes_json = json.loads(serializers.serialize('json', paciente))[0]
+    # print( pegar_id_pacientes_json)
+    
     vacinas_json = json.loads(serializers.serialize('json', vacinas))
     vacinas_json = [ {'fields': vacina['fields'], 'id': vacina['pk']} for vacina in vacinas_json ]
     # print(vacinas_json)
     
-    data = {'paciente': pacientes_json, 'vacinas': vacinas_json}
+    data = {'paciente': pacientes_json, 'vacinas': vacinas_json, 'pegar_id_pacientes': pegar_id_pacientes_json}
     return JsonResponse(data)
 
 @csrf_exempt
@@ -91,7 +94,7 @@ def update_vacina(request, id):
         return HttpResponse("Dados alterados com sucesso!")
 
         
-def excluir_vacina(request, id):
+def excluir_vacina(id):
     try:
         vacina = Vacina.objects.get(id=id)
         vacina.delete()
@@ -99,3 +102,26 @@ def excluir_vacina(request, id):
     except:
         return redirect(reverse('pacientes') + f'?aba=att_paciente&id_paciente={id}')
              
+def update_paciente(request, id):
+    dataBody = json.loads(request.body)
+    # print(dataBody)
+   
+    paciente = get_object_or_404(Paciente, id=id)
+    nome = dataBody['nome']
+    sobrenome = dataBody['sobrenome']
+    email = dataBody['email']
+    cpf = dataBody['cpf']
+    
+    try:
+        paciente.nome = nome
+        paciente.sobrenome = sobrenome
+        paciente.email = email
+        paciente.cpf = cpf
+        paciente.save()
+        
+        data = serializers.serialize('json', [paciente]) #simplificação com o serializer
+        # print(data)
+        return JsonResponse({'status': 200 ,'data': data})
+    except:
+        return JsonResponse({'status': 500})
+ 
