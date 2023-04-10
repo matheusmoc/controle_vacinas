@@ -1,0 +1,55 @@
+{% extends 'base.html' %} 
+
+{% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'pacientes/css/pacientes.css' %}" />
+{% endblock %} 
+
+{% block 'dashboard' %}
+
+<div class="container-fluid">
+  <div class="py-5">
+    <table class="table table-dark">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Unidade</th>
+          <th scope="col">Protocolo</th>
+          <th scope="col">Paciente</th>
+          <th scope="col">CPF</th>
+          <th scope="col">Região</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for servico in servicos %}
+        <tr>
+          <th scope="row"><a href="{% url 'servico' servico.identificador %}">{{servico.identificador}}</a></th>
+          <td>{{servico.unidade}}</td>
+          <td>{{servico.protocolo}}</td>
+          <td>{{servico.paciente.nome}} {{servico.paciente.sobrenome}}</td>
+          <td>{{servico.paciente.cpf}}</td>
+          <td>
+            {% for regiao in servico.regiao_servico.all %}
+                {{ regiao.cidade }}, {{ regiao.estado }}, {{ regiao.codigo_postal}}
+            {% endfor %}
+          </td>
+
+            <td>
+          {% if servico.finalizado == True %}
+                    <span class="badge badge-success">
+                    Finalizado
+                    </span>
+                {% else %}
+                    <span class="badge badge-warning">
+                    Em andamento
+                    </span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
