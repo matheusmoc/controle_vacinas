@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load custom_tags %}
+{% load static %}
+
+{% block dashboard %}
+<body>
+  <div class="container">
+    <div class="row d-flex align-items-center justify-content-center min-vh-100">
+      <div class="col-md-6">
+        <h2 class="text-center mb-4">Registrar</h2>
+
+        {% if form.errors %}
+          <div class="alert alert-danger" role="alert">
+            Ocorreu um erro durante o registro. Por favor, verifique os campos abaixo.
+          </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'register' %}" class="needs-validation" novalidate>
+          {% csrf_token %}
+          <div class="mb-3">
+            {{ form.username.label_tag }}
+            {{ form.username|add_class:"form-control" }}
+          </div>
+          <div class="mb-3">
+            {{ form.email.label_tag }}
+            {{ form.email|add_class:"form-control" }}
+          </div>
+          <div class="mb-3">
+            {{ form.first_name.label_tag }}
+            {{ form.first_name|add_class:"form-control" }}
+          </div>
+          <div class="mb-3">
+            {{ form.last_name.label_tag }}
+            {{ form.last_name|add_class:"form-control" }}
+          </div>
+          <div class="mb-3">
+            {{ form.password1.label_tag }}
+            {{ form.password1|add_class:"form-control" }}
+          </div>
+          <div class="mb-3">
+            {{ form.password2.label_tag }}
+            {{ form.password2|add_class:"form-control" }}
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Registrar</button>
+        </form>
+
+        <div class="text-center mt-3">
+          <p>Já tem uma conta? <a href="{% url 'login' %}">Entrar</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+{% endblock %}

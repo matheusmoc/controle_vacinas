@@ -1,4 +1,4 @@
-
+node_modules
 ### OSX ###
 .DS_Store
 .AppleDouble
@@ -21,7 +21,7 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
-
+# 
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -34,6 +34,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
+venv/
 build/
 develop-eggs/
 dist/

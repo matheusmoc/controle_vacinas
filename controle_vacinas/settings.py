@@ -23,10 +23,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # MyApps
+    'controle_vacinas',
     'pacientes',
     'servicos',
 
-    # Others
 ]
 
 MIDDLEWARE = [
@@ -40,6 +40,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'controle_vacinas.urls'
+
+AUTH_USER_MODEL = 'pacientes.CustomUser' 
 
 TEMPLATES = [
     {

@@ -1,9 +1,6 @@
-:root{
-     
-    --main-color: #ac4147;
-    --dark-color: #411f2d;
-    --light-color: #ffc27f;
-    --contrast-color: #f88863;
-    --differential-color: #ffe29a;
-
+.nav-sidebar .nav-treeview .nav-link {
+  font-size: 0.875rem; 
+  padding-left: 30px; 
+  display: flex;
+  align-items: center;
 }

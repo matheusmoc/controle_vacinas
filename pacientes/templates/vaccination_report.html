@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static %} 
+{% block 'head' %}
+<link rel="stylesheet" href="{% static 'pacientes/css/pacientes.css' %}" />
+{% endblock %} 
+
+{% block dashboard %}
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+    h1 {
+        margin-bottom: 20px;
+    }
+    .card {
+        margin: 15px 0;
+    }
+</style>
+
+
+<div class="container">
+    <h1 class="text-center">Relatórios de Status Vacinal</h1>
+
+    <div class="alert alert-info" role="alert">
+        Esta seção apresenta uma análise detalhada sobre a cobertura vacinal dos pacientes. 
+        Utilize as informações para monitorar a adesão às vacinas e planejar intervenções.
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card bg-dark text-white">
+                <div class="card-header">
+                    <h5 class="card-title">João da Silva</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Idade:</strong> 4 anos</p>
+                    <p><strong>Vacina Aplicada:</strong> Vacina A</p>
+                    <p><strong>Data da Aplicação:</strong> 10/01/2024</p>
+                    <p><strong>Status:</strong> Atrasado</p>
+                    <p><strong>Notas:</strong> Precisa ser contatado para agendar nova vacinação.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-dark text-white">
+                <div class="card-header">
+                    <h5 class="card-title">Maria Oliveira</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Idade:</strong> 5 anos</p>
+                    <p><strong>Vacina Aplicada:</strong> Vacina B</p>
+                    <p><strong>Data da Aplicação:</strong> 15/02/2024</p>
+                    <p><strong>Status:</strong> Em dia</p>
+                    <p><strong>Notas:</strong> Pronta para a próxima aplicação em 6 meses.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-dark text-white">
+                <div class="card-header">
+                    <h5 class="card-title">Carlos Santos</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Idade:</strong> 8 anos</p>
+                    <p><strong>Vacina Aplicada:</strong> Vacina C</p>
+                    <p><strong>Data da Aplicação:</strong> 20/03/2024</p>
+                    <p><strong>Status:</strong> Atrasado</p>
+                    <p><strong>Notas:</strong> Solicitar retorno para avaliação médica.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-dark text-white">
+                <div class="card-header">
+                    <h5 class="card-title">Fernanda Lima</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Idade:</strong> 10 anos</p>
+                    <p><strong>Vacina Aplicada:</strong> Vacina D</p>
+                    <p><strong>Data da Aplicação:</strong> 25/04/2024</p>
+                    <p><strong>Status:</strong> Em dia</p>
+                    <p><strong>Notas:</strong> Nenhuma observação necessária.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

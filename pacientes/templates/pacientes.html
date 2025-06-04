@@ -1,153 +1,131 @@
-{% extends "base.html" %} {% load static %} 
+{% extends "base.html" %}
+{% load static %} 
 {% block 'head' %}
 <link rel="stylesheet" href="{% static 'pacientes/css/pacientes.css' %}" />
-{% endblock %} {% block 'dashboard' %}
+{% endblock %} 
 
-<div class="container">
-  <div class="row">
-    <div onclick="exibir_form('1')" class="col-md card-dashboard">
-      <p class="text-card">Cadastrar pacientes</p>
-    </div>
-
-    <div onclick="exibir_form('2')" class="col-md card-dashboard">
-      <p class="text-card">Atualizar paciente</p>
-    </div>
-  </div>
-  <div id="add_paciente" class="adicionar-paciente">
-    <form action="{% url 'pacientes' %}" method="POST">
-      {% csrf_token %}
-      <div class="row">
-        <div class="col-md">
-          <p>Nome:</p>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Primeiro nome"
-            name="nome"
-            value="{{nome}}"
-          />
-        </div>
-        <div class="col-md">
-          <p>Sobrenome:</p>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Sobrenome"
-            name="sobrenome"
-            value="{{sobrenome}}"
-          />
+{% block dashboard %}
+<div class="container-fluid">
+  <!-- DASHBOARD CARDS -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card bg-primary text-white" onclick="exibir_form('1')" style="cursor: pointer;">
+        <div class="card-body text-center">
+          <h5 class="card-title">Cadastrar Pacientes</h5>
         </div>
       </div>
-      <br />
-      <p>E-mail:</p>
-      <input
-        type="email"
-        class="form-control"
-        placeholder="nome@email.com"
-        name="email"
-        value="{{email}}"
-      />
-      <br />
-      <p>CPF:</p>
-      <input
-        type="text"
-        class="form-control"
-        placeholder="___.___.___-__"
-        name="cpf"
-        value="{{cpf}}"
-      />
-      <hr style="background-color: gray" />
+    </div>
+    <div class="col-md-6">
+      <div class="card bg-warning text-white" onclick="exibir_form('2')" style="cursor: pointer;">
+        <div class="card-body text-center">
+          <h5 class="card-title">Atualizar Paciente</h5>
+        </div>
+      </div>
+    </div>
+  </div>
 
-      <div class="add-carros">
-        <span class="btn-add-carros" onclick="add_carro()"
-          >Registrar vacinas +</span
-        >
+  <!-- FORM CADASTRAR PACIENTE -->
+  <div id="add_paciente" class="card card-primary mb-4" style="display: none;">
+    <div class="card-header">
+      <h3 class="card-title">Novo Paciente</h3>
+    </div>
+    <form action="{% url 'pacientes' %}" method="POST">
+      {% csrf_token %}
+      <div class="card-body">
+        <div class="row">
+          <div class="form-group col-md-6">
+            <label>Nome</label>
+            <input type="text" name="nome" class="form-control" placeholder="Primeiro nome" required>
+          </div>
+          <div class="form-group col-md-6">
+            <label>Sobrenome</label>
+            <input type="text" name="sobrenome" class="form-control" placeholder="Sobrenome" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" name="email" class="form-control" placeholder="nome@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label>CPF</label>
+          <input type="text" name="cpf" class="form-control" placeholder="___.___.___-__" required>
+        </div>
+
+        <hr>
+        <div class="form-group">
+          <span class="btn btn-sm btn-outline-primary ml-2" onclick="add_carro()">+ Registrar Vacina</span>
+        </div>
+
         <div id="form-carro">
-          {%for vacina, fabricante, codigo in vacinas %}
-          <br />
-          <div class="row">
-            <div class="col-md">
-              <input
-                type="text"
-                placeholder="Vacina"
-                class="form-control"
-                name="vacina"
-                value="{{vacina}}"
-              />
+          {% for vacina in vacinas %}
+          <div class="row mb-2">
+            <div class="form-group col-md-4">
+              <input type="text" name="vacina" class="form-control" placeholder="Vacina" value="{{ vacina.vacina }}" required>
             </div>
-
-            <div class="col-md">
-              <input
-                type="text"
-                placeholder="Fabricante"
-                class="form-control"
-                name="fabricante"
-                value="{{fabricante}}"
-              />
+            <div class="form-group col-md-4">
+              <input type="text" name="fabricante" class="form-control" placeholder="Fabricante" value="{{ vacina.fabricante }}" required>
             </div>
-
-            <div class="col-md">
-              <input
-                type="number"
-                placeholder="Cód."
-                class="form-control"
-                name="codigo"
-                value="{{codigo}}"
-              />
+            <div class="form-group col-md-4">
+              <input type="number" name="codigo" class="form-control" placeholder="Código" value="{{ vacina.codigo }}" required>
             </div>
           </div>
           {% endfor %}
         </div>
       </div>
-      <br />
-      <input type="submit" value="Cadastrar" class="btn-principal" />
+      <div class="card-footer">
+        <button type="submit" class="btn btn-primary">Cadastrar</button>
+      </div>
     </form>
   </div>
 
-  <div id="att_paciente">
-    <p></p>
-    <select
-      id="paciente_select"
-      onchange="dados_paciente()"
-      class="form-control"
-    >
-    <option value=""></option>
-      {% for paciente in pacientes%}
-      <option value="{{paciente.id}}">
-        {{paciente.nome}} | {{paciente.cpf}}
-      </option>
-      {%endfor%}
-    </select>
-
-    <br />
-    <hr />
-
-    <div id="form-att-paciente">
-      <input type="hidden" id="id" />
-      <p>Nome:</p>
-      <input id="nome" type="text" class="form-control" />
-      <p>Sobrenome:</p>
-      <input id="sobrenome" type="text" class="form-control" />
-      <p>E-mail:</p>
-      <input id="email" type="text" class="form-control" />
-      <p>CPF:</p>
-      <input id="cpf" type="text" class="form-control" />
-      <br />
-      <input
-        onclick="update_paciente()"
-        type="submit"
-        value="salvar"
-        class="btn btn-success"
-      />
-      <hr style="background-color: gray" />
-      
-      <h2>Vacinas</h2>
-      <div id="vacinas"></div>
+  <!-- FORM ATUALIZAR PACIENTE -->
+  <div id="att_paciente" class="card card-warning" style="display: none;">
+    <div class="card-header">
+      <h3 class="card-title">Atualizar Paciente</h3>
     </div>
+    <div class="card-body">
+      <div class="form-group">
+        <label>Selecione um paciente</label>
+        <select id="paciente_select" onchange="dados_paciente()" class="form-control">
+          <option value="">Selecione</option>
+          {% if pacientes %}
+            {% for paciente in pacientes %}
+              <option value="{{ paciente.id }}">{{ paciente.nome }} | {{ paciente.cpf }}</option>
+            {% endfor %}
+          {% else %}
+            <option value="">Nenhum paciente encontrado</option>
+          {% endif %}
+        </select>
+      </div>
 
-    
+      <div id="form-att-paciente" style="display: none;">
+        <input type="hidden" id="id">
+        <div class="form-group">
+          <label>Nome</label>
+          <input id="nome" type="text" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>Sobrenome</label>
+          <input id="sobrenome" type="text" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>E-mail</label>
+          <input id="email" type="email" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>CPF</label>
+          <input id="cpf" type="text" class="form-control" required>
+        </div>
+        <button onclick="update_paciente()" class="btn btn-success">Salvar</button>
+
+        <hr>
+        <h5>Vacinas</h5>
+        <div id="vacinas"></div>
+      </div>
+    </div>
   </div>
-
-  <script src="{% static 'pacientes/js/paciente.js' %}"></script>
-  {% endblock %}
 </div>
+<script src="{% static 'pacientes/js/paciente.js' %}"></script>
+{% endblock %}

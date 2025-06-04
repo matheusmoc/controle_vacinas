@@ -1,20 +1,25 @@
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
-from .models import Paciente, Vacina
-import re
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Paciente, Vacina, PacienteVacina, Responsavel
 from django.core import serializers
 import json
-from django.views.decorators.csrf import csrf_exempt
-from django.urls import reverse
-from django.shortcuts import redirect, get_object_or_404
-                                        #findOrFail
+import re
+from django.views import View
+from django.views import View
+from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render, get_object_or_404, redirect
+from django.core import serializers
+import json
+import re
 
 
-def pacientes(request):
-    if request.method == 'GET':
+class PacienteView(View):
+    def get(self, request):
         pacientes_list = Paciente.objects.all()
         return render(request, 'pacientes.html', {'pacientes': pacientes_list})
-    elif request.method == 'POST':
+
+    def post(self, request):
         nome = request.POST.get('nome')
         sobrenome = request.POST.get('sobrenome')
         email = request.POST.get('email')
@@ -24,104 +29,112 @@ def pacientes(request):
         fabricantes = request.POST.getlist('fabricante')
         codigos = request.POST.getlist('codigo')
 
-        paciente = Paciente.objects.filter(cpf=cpf)
-        if paciente.exists():
-            return render(request, 'pacientes.html', {'nome': nome, 'sobrenome': sobrenome, 'email': email, 'vacinas': zip(vacinas, fabricantes, codigos)})
-            # return HttpResponse('Paciente já cadastrado')
+        if Paciente.objects.filter(cpf=cpf).exists():
+            return render(request, 'pacientes.html', {
+                'nome': nome,
+                'sobrenome': sobrenome,
+                'email': email,
+                'vacinas': zip(vacinas, fabricantes, codigos)
+            })
 
-        if not re.fullmatch(re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'), email):
-             return render(request, 'pacientes.html', {'nome': nome, 'sobrenome': sobrenome, 'cpf': cpf, 'vacinas': zip(vacinas, fabricantes, codigos)})
-        # Cria um objeto Paciente e salva no banco de dados
-        pacientes = Paciente(
+        if not re.fullmatch(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+', email):
+            return render(request, 'pacientes.html', {
+                'nome': nome,
+                'sobrenome': sobrenome,
+                'cpf': cpf,
+                'vacinas': zip(vacinas, fabricantes, codigos)
+            })
+        
+        responsavel_id = request.POST.get('responsavel_id') 
+        responsavel = Responsavel.objects.get(id=responsavel_id)
+
+        paciente = Paciente(
             nome=nome,
             sobrenome=sobrenome,
-            email=email,
-            cpf=cpf
+            cpf=cpf,
+            responsavel=responsavel 
         )
-
-        pacientes.save()
-
-        # Cria um objeto Vacina para cada item das listas de vacinas, fabricantes e códigos,
-        # utilizando a variável pacientes como parâmetro
-        for vacinas, fabricantes, codigos in zip(vacinas, fabricantes, codigos):
-            vac = Vacina(vacina=vacinas, fabricante=fabricantes,
-                         codigo=codigos, paciente=pacientes)
-            vac.save()
-
-        return HttpResponse('teste')
-
-
-
-
-def att_paciente(request):
-    id_paciente = request.POST.get('id_paciente')
-    
-    paciente = Paciente.objects.filter(id=id_paciente)
-    vacinas = Vacina.objects.filter(paciente = paciente[0])
-    # print(vacinas)
-    
-
-    pacientes_json = json.loads(serializers.serialize('json', paciente))[0]['fields']
-    pegar_id_pacientes_json = json.loads(serializers.serialize('json', paciente))[0]
-    # print( pegar_id_pacientes_json)
-    
-    vacinas_json = json.loads(serializers.serialize('json', vacinas))
-    vacinas_json = [ {'fields': vacina['fields'], 'id': vacina['pk']} for vacina in vacinas_json ]
-    # print(vacinas_json)
-    
-    data = {'paciente': pacientes_json, 'vacinas': vacinas_json, 'pegar_id_pacientes': pegar_id_pacientes_json}
-    return JsonResponse(data)
-
-@csrf_exempt
-def update_vacina(request, id):
-        
-        nome_vacina = request.POST.get('vacina')
-        codigo = request.POST.get('codigo')
-        fabricante = request.POST.get('fabricante')
-        if not nome_vacina or not codigo  or not fabricante:
-            return HttpResponse('O campo vacina é obrigatório.')
-
-        vacina = Vacina.objects.get(id=id)
-        list_vacina = Vacina.objects.filter(codigo=codigo).exclude(id=id)
-        if list_vacina.exists():
-             return HttpResponse('A vacina já foi aplicada neste paciente')
-        
-        
-        vacina.vacina = nome_vacina
-        vacina.codigo = codigo
-        vacina.fabricante = fabricante
-        vacina.save()
-        return HttpResponse("Dados alterados com sucesso!")
-
-        
-def excluir_vacina(id):
-    try:
-        vacina = Vacina.objects.get(id=id)
-        vacina.delete()
-        return redirect(reverse('pacientes') + f'?aba=att_paciente&id_paciente={id}')
-    except:
-        return redirect(reverse('pacientes') + f'?aba=att_paciente&id_paciente={id}')
-             
-def update_paciente(request, id):
-    dataBody = json.loads(request.body)
-    # print(dataBody)
-   
-    paciente = get_object_or_404(Paciente, id=id)
-    nome = dataBody['nome']
-    sobrenome = dataBody['sobrenome']
-    email = dataBody['email']
-    cpf = dataBody['cpf']
-    
-    try:
-        paciente.nome = nome
-        paciente.sobrenome = sobrenome
-        paciente.email = email
-        paciente.cpf = cpf
         paciente.save()
-        
-        data = serializers.serialize('json', [paciente]) #simplificação com o serializer
-        # print(data)
-        return JsonResponse({'status': 200 ,'data': data})
-    except:
-        return JsonResponse({'status': 500})
- 
+
+        for vacina_nome, fabricante, codigo in zip(vacinas, fabricantes, codigos):
+            vacina = Vacina.objects.create(
+                vacina=vacina_nome,
+                fabricante=fabricante,
+                codigo=codigo
+            )
+            PacienteVacina.objects.create(
+                paciente=paciente,
+                vacina=vacina,
+                data_vacinacao=request.POST.get('data_vacinacao') 
+            )
+
+        return HttpResponse('Paciente e vacinas cadastrados com sucesso!')
+
+    def att_paciente(request):
+        id_paciente = request.POST.get('id_paciente')
+        paciente = get_object_or_404(Paciente, id=id_paciente)
+        vacinas = Vacina.objects.filter(pacientes__paciente=paciente)
+
+        # Serializando paciente e vacinas
+        pacientes_json = json.loads(serializers.serialize('json', [paciente]))[0]['fields']
+        vacinas_json = json.loads(serializers.serialize('json', vacinas))
+
+        vacinas_json = [{'fields': vacina['fields'], 'id': vacina['pk']} for vacina in vacinas_json]
+
+        data = {
+            'paciente': pacientes_json,
+            'vacinas': vacinas_json
+        }
+        return JsonResponse(data)
+
+    def update_paciente(request, id):
+        if request.method == 'POST':
+            dataBody = json.loads(request.body)
+            paciente = get_object_or_404(Paciente, id=id)
+            paciente.nome = dataBody['nome']
+            paciente.sobrenome = dataBody['sobrenome']
+            paciente.email = dataBody['email']
+            paciente.cpf = dataBody['cpf']
+
+            try:
+                paciente.save()
+                data = serializers.serialize('json', [paciente])
+                return JsonResponse({'status': 200, 'data': data})
+            except Exception as e:
+                return JsonResponse({'status': 500, 'error': str(e)})
+            
+class VacinaView(View):
+    @csrf_exempt
+    def update_vacina(request, id):
+        if request.method == 'POST':
+            nome_vacina = request.POST.get('vacina')
+            codigo = request.POST.get('codigo')
+            fabricante = request.POST.get('fabricante')
+
+            if not nome_vacina or not codigo or not fabricante:
+                return HttpResponse('O campo vacina é obrigatório.')
+
+            vacina = get_object_or_404(Vacina, id=id)
+            if Vacina.objects.filter(codigo=codigo).exclude(id=id).exists():
+                return HttpResponse('A vacina já foi aplicada neste paciente.')
+
+            vacina.vacina = nome_vacina
+            vacina.codigo = codigo
+            vacina.fabricante = fabricante
+            vacina.save()
+            
+            return HttpResponse("Dados alterados com sucesso!")
+
+    def excluir_vacina(request, id):
+        vacina = get_object_or_404(Vacina, id=id)
+        vacina.delete()
+        return redirect('pacientes') 
+
+class RelatorioStatusVacinalView(View):
+    def get_report(request):
+        return render(request, 'vaccination_report.html')
+    
+
+class HistoricoVacinalView(View):
+    def get_history(request):
+        return render(request, 'vaccination_history.html')
