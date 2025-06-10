@@ -5,62 +5,37 @@
 
 {% endblock %}
 {% block dashboard %}
-<style>
-  .table th, .table td {
-      text-align: center;
-      color: white;
-  }
-</style>
-<div class="container">
+<div class="container-fluid">
     <h2 class="text-center mb-4">Emissão de Relatórios de Vacinas Administradas</h2>
     
     <div class="text-center mb-4">
         <h4>Paciente: {{ servico.paciente }}</h4>
-        <a target="_blank" href="{% url 'gerar_carteira_vacinacao' servico.identificador %}" class="btn btn-primary">Gerar Carteirinha de Vacinação</a>
     </div>
 
     <h4 class="mb-3">Pré-visualização do Relatório</h4>
-    <table class="table table-bordered table-striped">
-        <thead class="thead-dark">
-            <tr>
-                <th>Data da Aplicação</th>
-                <th>Vacina</th>
-                <th>Profissional de Saúde</th>
-                <th>Reação Adversa</th>
-                <th>Observações</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>01/01/2024</td>
-                <td>Vacina XYZ</td>
-                <td>Dr. João Silva</td>
-                <td>Não</td>
-                <td>Sem observações</td>
-            </tr>
-            <tr>
-                <td>15/02/2024</td>
-                <td>Vacina ABC</td>
-                <td>Dra. Maria Oliveira</td>
-                <td>Sim</td>
-                <td>Febre leve após a vacinação</td>
-            </tr>
-            <tr>
-                <td>10/03/2024</td>
-                <td>Vacina DEF</td>
-                <td>Dr. Carlos Pereira</td>
-                <td>Não</td>
-                <td>Sem observações</td>
-            </tr>
-            <tr>
-                <td>05/04/2024</td>
-                <td>Vacina GHI</td>
-                <td>Dra. Ana Santos</td>
-                <td>Não</td>
-                <td>Sem observações</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Carteirinha de Vacinação</h3>
+            <div class="card-tools">
+                <span class="badge badge-primary">Visualização</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <iframe 
+                src="{% url 'gerar_carteira_vacinacao' servico.identificador %}" 
+                width="100%" 
+                height="600px" 
+                style="border: 1px solid #ccc;">
+            </iframe>
+        </div>
+        <div class="card-footer text-right">
+            <a target="_blank" 
+            href="{% url 'gerar_carteira_vacinacao' servico.identificador %}" 
+            class="btn btn-primary">
+                Baixar PDF
+            </a>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

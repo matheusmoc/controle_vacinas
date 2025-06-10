@@ -99,4 +99,4 @@ def gerar_carteira_vacinacao(request, identificador):
 
     pdf_content = pdf.output(dest='S').encode('latin1')
     pdf_byte = BytesIO(pdf_content)
-    return FileResponse(pdf_byte, as_attachment=True, filename=f"carteirinha-{servico.protocolo}.pdf")
+    return FileResponse(pdf_byte, as_attachment=False, content_type='application/pdf', filename=f"carteirinha-{servico.protocolo}.pdf")

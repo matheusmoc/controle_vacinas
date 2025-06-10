@@ -54,11 +54,43 @@
                       <a href="{% url 'pacientes' %}"
                         class="nav-link {% if request.resolver_match.url_name == 'pacientes' %}active{% endif %}">
                         <i class="{% if request.resolver_match.url_name == 'pacientes' %}fas{% else %}far{% endif %} fa-circle nav-icon"></i>
-                        <p>Cadastrar paciente</p>
+                        <p>Cadastro de paciente</p>
                       </a>
                     </li>
                   </ul>
                 </li>
+
+                <!-- Serviços -->
+                <li class="nav-item has-treeview {% if request.resolver_match.url_name == 'listar_servico' or request.resolver_match.url_name == 'novo_servico' %}menu-open{% endif %}">
+                   <a href="#" class="nav-link {% if  request.resolver_match.url_name == 'listar_servico' or request.resolver_match.url_name == 'novo_servico' %}active{% endif %}">
+                    <i class="nav-icon fas fa-chart-bar"></i>
+                    <p>
+                      Serviços
+                      <i class="right fas fa-angle-left"></i>
+                    </p>
+                  </a>
+                  <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                      <a href="{% url 'novo_servico' %}"
+                        class="nav-link {% if request.resolver_match.url_name == 'novo_servico' %}active{% endif %}">
+                        <i class="{% if request.resolver_match.url_name == 'novo_servico' %}fas{% else %}far{% endif %} fa-circle nav-icon"></i>
+                        <p>Novo Atendimento</p>
+                      </a>
+                    </li>
+                  </ul>
+                  
+                  <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                      <a href="{% url 'listar_servico' %}"
+                        class="nav-link {% if request.resolver_match.url_name == 'listar_servico' %}active{% endif %}">
+                        <i class="{% if request.resolver_match.url_name == 'listar_servico' %}fas{% else %}far{% endif %} fa-circle nav-icon"></i>
+                        <p>Atendimentos</p>
+                      </a>
+                    </li>
+                  </ul>
+
+                </li>
+
                 <!-- Agendamento -->
                 <li class="nav-item has-treeview">
                   <a href="#" class="nav-link">
@@ -96,42 +128,6 @@
                   </ul>
                 </li>
 
-                <!-- Atendimento -->
-                <li class="nav-item has-treeview">
-                  <a href="#" class="nav-link">
-                    <i class="nav-icon fas fa-user-check"></i>
-                    <p>
-                      Atendimento
-                      <i class="right fas fa-angle-left"></i>
-                    </p>
-                  </a>
-                  <ul class="nav nav-treeview">
-                    <li class="nav-item">
-                      <a href="#" class="nav-link">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Lista do dia</p>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a href="#" class="nav-link">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Marcar dose como aplicada</p>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a href="#" class="nav-link">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Registro de lote e horário</p>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a href="#" class="nav-link">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Controle de doses aplicadas</p>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
 
                 <!-- Notificações -->
                 <li class="nav-item has-treeview">
@@ -213,10 +209,13 @@
       </div>
     </div>
 
-    {% block 'body' %}
+    {% block body %}
     {% endblock %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+    
+    {% block scripts %}{% endblock %}
   </body>
 </html>

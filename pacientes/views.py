@@ -5,9 +5,12 @@ from .models import Paciente, Vacina, PacienteVacina, Responsavel
 from django.core import serializers
 import json
 import re
+from datetime import datetime
 from django.views import View
 from django.views import View
 from django.http import JsonResponse, HttpResponse
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core import serializers
 import json
@@ -16,60 +19,49 @@ import re
 
 class PacienteView(View):
     def get(self, request):
-        pacientes_list = Paciente.objects.all()
-        return render(request, 'pacientes.html', {'pacientes': pacientes_list})
+        return render(request, 'pacientes.html')
 
+class PacienteViewAPI(View):  
+    def get(self, request):
+        pacientes = list(Paciente.objects.values())
+        return JsonResponse({'pacientes': pacientes})
+    
     def post(self, request):
         nome = request.POST.get('nome')
         sobrenome = request.POST.get('sobrenome')
-        email = request.POST.get('email')
         cpf = request.POST.get('cpf')
-
-        vacinas = request.POST.getlist('vacina')
-        fabricantes = request.POST.getlist('fabricante')
-        codigos = request.POST.getlist('codigo')
+        data_nascimento = request.POST.get('data_nascimento')
+        vacinas_json = request.POST.get('vacinas')
 
         if Paciente.objects.filter(cpf=cpf).exists():
-            return render(request, 'pacientes.html', {
-                'nome': nome,
-                'sobrenome': sobrenome,
-                'email': email,
-                'vacinas': zip(vacinas, fabricantes, codigos)
-            })
+            return JsonResponse({'status': 400, 'message': 'Paciente com este CPF já existe.'})
 
-        if not re.fullmatch(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+', email):
-            return render(request, 'pacientes.html', {
-                'nome': nome,
-                'sobrenome': sobrenome,
-                'cpf': cpf,
-                'vacinas': zip(vacinas, fabricantes, codigos)
-            })
-        
-        responsavel_id = request.POST.get('responsavel_id') 
-        responsavel = Responsavel.objects.get(id=responsavel_id)
+        try:
+            vacinas = json.loads(vacinas_json)
+        except (TypeError, json.JSONDecodeError):
+            return JsonResponse({'status': 400, 'message': 'Erro ao processar vacinas.'})
 
-        paciente = Paciente(
+        paciente = Paciente.objects.create(
             nome=nome,
             sobrenome=sobrenome,
             cpf=cpf,
-            responsavel=responsavel 
+            data_nascimento=data_nascimento
         )
-        paciente.save()
 
-        for vacina_nome, fabricante, codigo in zip(vacinas, fabricantes, codigos):
+        for v in vacinas:
             vacina = Vacina.objects.create(
-                vacina=vacina_nome,
-                fabricante=fabricante,
-                codigo=codigo
+                vacina=v['vacina'],
+                fabricante=v['fabricante'],
+                codigo=v['codigo']
             )
             PacienteVacina.objects.create(
                 paciente=paciente,
                 vacina=vacina,
-                data_vacinacao=request.POST.get('data_vacinacao') 
+                data_vacinacao=request.POST.get('data_vacinacao')
             )
 
-        return HttpResponse('Paciente e vacinas cadastrados com sucesso!')
-
+        return JsonResponse({'status': 200, 'message': 'Paciente e vacinas cadastrados com sucesso!'})
+    
     def att_paciente(request):
         id_paciente = request.POST.get('id_paciente')
         paciente = get_object_or_404(Paciente, id=id_paciente)
@@ -92,9 +84,15 @@ class PacienteView(View):
             dataBody = json.loads(request.body)
             paciente = get_object_or_404(Paciente, id=id)
             paciente.nome = dataBody['nome']
-            paciente.sobrenome = dataBody['sobrenome']
-            paciente.email = dataBody['email']
+            paciente.sobrenome = dataBody['sobrenome']            
+            
             paciente.cpf = dataBody['cpf']
+            try:
+                data_nascimento = datetime.strptime(dataBody['data_nascimento'], "%Y-%m-%d").date()
+            except ValueError:
+                return JsonResponse({'status': 400, 'error': 'Formato de data inválido. Use YYYY-MM-DD.'})
+            
+            paciente.data_nascimento = data_nascimento
 
             try:
                 paciente.save()

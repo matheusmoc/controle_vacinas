@@ -1,22 +1,34 @@
 {% extends "base.html" %}
-{% load static %} 
+{% load static %}
+
 {% block 'head' %}
 <link rel="stylesheet" href="{% static 'pacientes/css/pacientes.css' %}" />
-{% endblock %} 
+{% endblock %}
 
 {% block dashboard %}
-<div class="container-fluid">
+<div id="pacientes" class="container-fluid">
+
   <!-- DASHBOARD CARDS -->
   <div class="row mb-4">
     <div class="col-md-6">
-      <div class="card bg-primary text-white" onclick="exibir_form('1')" style="cursor: pointer;">
+      <div 
+        class="card bg-primary text-white" 
+        @click="toggleForm('create')" 
+        :class="{ active: formType === 'create' }"
+        style="cursor: pointer;"
+      >
         <div class="card-body text-center">
           <h5 class="card-title">Cadastrar Pacientes</h5>
         </div>
       </div>
     </div>
     <div class="col-md-6">
-      <div class="card bg-warning text-white" onclick="exibir_form('2')" style="cursor: pointer;">
+      <div 
+        class="card bg-primary text-white" 
+        @click="toggleForm('update')" 
+        :class="{ active: formType === 'update' }"
+        style="cursor: pointer;"
+      >
         <div class="card-body text-center">
           <h5 class="card-title">Atualizar Paciente</h5>
         </div>
@@ -25,53 +37,44 @@
   </div>
 
   <!-- FORM CADASTRAR PACIENTE -->
-  <div id="add_paciente" class="card card-primary mb-4" style="display: none;">
-    <div class="card-header">
-      <h3 class="card-title">Novo Paciente</h3>
-    </div>
-    <form action="{% url 'pacientes' %}" method="POST">
-      {% csrf_token %}
+  <div v-if="formType === 'create'" class="card card-primary mb-4">
+    <div class="card-header"><h3 class="card-title">Novo Paciente</h3></div>
+    <form action="/pacientes/" method="POST" @submit.prevent="cadastrarPaciente">
+      <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
       <div class="card-body">
         <div class="row">
           <div class="form-group col-md-6">
             <label>Nome</label>
-            <input type="text" name="nome" class="form-control" placeholder="Primeiro nome" required>
+            <input v-model="novoPaciente.nome" type="text" name="nome" class="form-control" required>
           </div>
           <div class="form-group col-md-6">
             <label>Sobrenome</label>
-            <input type="text" name="sobrenome" class="form-control" placeholder="Sobrenome" required>
+            <input v-model="novoPaciente.sobrenome" type="text" name="sobrenome" class="form-control" required>
           </div>
         </div>
-
         <div class="form-group">
-          <label>E-mail</label>
-          <input type="email" name="email" class="form-control" placeholder="nome@email.com" required>
+          <label>Data de Nascimento</label>
+          <input v-model="novoPaciente.data_nascimento" type="date" name="data_nascimento" class="form-control" required>
         </div>
-
         <div class="form-group">
           <label>CPF</label>
-          <input type="text" name="cpf" class="form-control" placeholder="___.___.___-__" required>
+          <input v-model="novoPaciente.cpf" type="text" name="cpf" class="form-control" required>
         </div>
 
         <hr>
         <div class="form-group">
-          <span class="btn btn-sm btn-outline-primary ml-2" onclick="add_carro()">+ Registrar Vacina</span>
+          <span class="btn btn-sm btn-outline-primary" @click="addVacina()">+ Registrar Vacina</span>
         </div>
-
-        <div id="form-carro">
-          {% for vacina in vacinas %}
-          <div class="row mb-2">
-            <div class="form-group col-md-4">
-              <input type="text" name="vacina" class="form-control" placeholder="Vacina" value="{{ vacina.vacina }}" required>
-            </div>
-            <div class="form-group col-md-4">
-              <input type="text" name="fabricante" class="form-control" placeholder="Fabricante" value="{{ vacina.fabricante }}" required>
-            </div>
-            <div class="form-group col-md-4">
-              <input type="number" name="codigo" class="form-control" placeholder="Código" value="{{ vacina.codigo }}" required>
-            </div>
+        <div v-for="(vacina, index) in novoPaciente.vacinas" :key="index" class="row mb-2">
+          <div class="form-group col-md-4">
+            <input v-model="vacina.vacina" type="text" class="form-control" placeholder="Vacina" required>
           </div>
-          {% endfor %}
+          <div class="form-group col-md-4">
+            <input v-model="vacina.fabricante" type="text" class="form-control" placeholder="Fabricante" required>
+          </div>
+          <div class="form-group col-md-4">
+            <input v-model="vacina.codigo" type="number" class="form-control" placeholder="Código" required>
+          </div>
         </div>
       </div>
       <div class="card-footer">
@@ -81,51 +84,62 @@
   </div>
 
   <!-- FORM ATUALIZAR PACIENTE -->
-  <div id="att_paciente" class="card card-warning" style="display: none;">
+   <div v-if="formType === 'update'" class="card card-warning mb-4">
     <div class="card-header">
       <h3 class="card-title">Atualizar Paciente</h3>
     </div>
     <div class="card-body">
       <div class="form-group">
         <label>Selecione um paciente</label>
-        <select id="paciente_select" onchange="dados_paciente()" class="form-control">
-          <option value="">Selecione</option>
-          {% if pacientes %}
-            {% for paciente in pacientes %}
-              <option value="{{ paciente.id }}">{{ paciente.nome }} | {{ paciente.cpf }}</option>
-            {% endfor %}
-          {% else %}
-            <option value="">Nenhum paciente encontrado</option>
-          {% endif %}
+        <select id="select1" v-model="pacienteSelecionadoId" @change="showInfoPaciente" class="form-control">
+          <option disabled value="">Selecione um paciente</option>
+          <option
+            v-for="paciente in pacientes"
+            :key="paciente.id"
+            :value="paciente.id"
+            v-text="paciente.nome + ' | ' + paciente.cpf"
+          ></option>
         </select>
       </div>
 
-      <div id="form-att-paciente" style="display: none;">
-        <input type="hidden" id="id">
+      <div v-if="pacienteSelecionado">
         <div class="form-group">
           <label>Nome</label>
-          <input id="nome" type="text" class="form-control" required>
+          <input v-model="pacienteSelecionado.nome" type="text" class="form-control" required>
         </div>
         <div class="form-group">
           <label>Sobrenome</label>
-          <input id="sobrenome" type="text" class="form-control" required>
+          <input v-model="pacienteSelecionado.sobrenome" type="text" class="form-control" required>
         </div>
         <div class="form-group">
-          <label>E-mail</label>
-          <input id="email" type="email" class="form-control" required>
+          <label>Data de Nascimento</label>
+          <input v-model="pacienteSelecionado.data_nascimento" type="date" class="form-control" required>
         </div>
         <div class="form-group">
           <label>CPF</label>
-          <input id="cpf" type="text" class="form-control" required>
+          <input v-model="pacienteSelecionado.cpf" type="text" class="form-control" required>
         </div>
-        <button onclick="update_paciente()" class="btn btn-success">Salvar</button>
+        <button @click="atualizarPaciente" class="btn btn-success">Salvar</button>
 
         <hr>
         <h5>Vacinas</h5>
-        <div id="vacinas"></div>
+        <div v-for="(vacina, index) in pacienteSelecionado.vacinas" :key="index" class="row mb-2">
+          <div class="form-group col-md-4">
+            <input v-model="vacina.vacina" type="text" class="form-control" placeholder="Vacina">
+          </div>
+          <div class="form-group col-md-4">
+            <input v-model="vacina.fabricante" type="text" class="form-control" placeholder="Fabricante">
+          </div>
+          <div class="form-group col-md-4">
+            <input v-model="vacina.codigo" type="number" class="form-control" placeholder="Código">
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
 </div>
+{% endblock %}
+{% block scripts %}
 <script src="{% static 'pacientes/js/paciente.js' %}"></script>
 {% endblock %}

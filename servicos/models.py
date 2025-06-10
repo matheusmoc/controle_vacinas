@@ -25,7 +25,7 @@ class Servico(models.Model):
     vacinador = models.CharField( max_length=50 )
     cnes = models.IntegerField(null=True)
     registro_profissional = models.CharField(max_length=50, null=True)
-    finalizado = models.BooleanField(default=True)
+    finalizado = models.BooleanField(default=False)
     protocolo = models.CharField(max_length=54, null=True, blank=True)
     identificador = models.CharField(max_length=24, null=True, blank=True)
     
@@ -36,12 +36,12 @@ class Servico(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.protocolo:
-            self.protocolo = datetime.now().strftime("%d/%m/%Y - %H:%M:%S - ") + token_hex(16) #mantem data e hora com o token
+            self.protocolo = datetime.now().strftime("%d/%m/%Y - %H:%M:%S - ") + token_hex(16) 
         
         if not self.identificador:
             self.identificador = token_urlsafe(16)
        
-        super(Servico, self).save(*args, **kwargs) #executa método save
+        super(Servico, self).save(*args, **kwargs)
 
 
 
