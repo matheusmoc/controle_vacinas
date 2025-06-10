@@ -22,7 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    # MyApps
+
     'controle_vacinas',
     'pacientes',
     'servicos',
