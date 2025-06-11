@@ -1,25 +1,31 @@
+from django import forms
 from django.forms import ModelForm
-from .models import Servico, RegiaoServico
+from .models import Servico
 
 class FormServico(ModelForm):
     class Meta:
         model = Servico
-        exclude = ['finalizado', 'protocolo'] 
+        exclude = ['finalizado', 'protocolo', 'id']
+        widgets = {
+            'data': forms.DateInput(attrs={
+                'type': 'date', 
+                'class': 'form-control'
+            })
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         for field_name, field in self.fields.items():
-            field.widget.attrs.update({
-                'class': 'form-control',
-                'placeholder': field.label or field_name.capitalize()
-            })
+            if field.widget.__class__.__name__ != 'CheckboxSelectMultiple':
+                # Evita sobrescrever o widget do campo data
+                if field_name != 'data':
+                    field.widget.attrs.update({
+                        'class': 'form-control',
+                        'placeholder': field.label or field_name.capitalize()
+                    })
 
         if 'regiao_servico' in self.fields:
-            choices = []
-            for value, label in self.fields['regiao_servico'].choices:
-                if label:  
-                    # Evita rótulos vazios (como a opção inicial)
-                    # Aqui 'label' é geralmente o __str__() do objeto relacionado
-                    choices.append((value, str(label)))
-            self.fields['regiao_servico'].choices = choices
+            self.fields['regiao_servico'].widget.attrs.update({
+                'class': 'form-control'
+            })

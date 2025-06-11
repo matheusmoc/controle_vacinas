@@ -13,6 +13,7 @@
     <form method="post">
       {% csrf_token %}
       <div class="card-body">
+
         <div class="form-group">
           <label for="unidade">Unidade</label>
           {{ form_servico.unidade }}
@@ -28,22 +29,40 @@
           {{ form_servico.regiao_servico }}
         </div>
 
+        <div class="form-group">
+          <label for="data">Data da Vacinação</label>
+          {{ form_servico.data }}
+        </div>
+
+        <div class="form-group">
+          <label for="lote">Lote</label>
+          {{ form_servico.lote }}
+        </div>
+
+        <div class="form-group">
+          <label for="vacinador">Vacinador</label>
+          {{ form_servico.vacinador }}
+        </div>
+
+        <div class="form-group">
+          <label for="cnes">CNES</label>
+          {{ form_servico.cnes }}
+        </div>
+
+        <div class="form-group">
+          <label for="registro_profissional">Registro Profissional</label>
+          {{ form_servico.registro_profissional }}
+        </div>
       </div>
 
       <div class="card-footer">
         <button type="submit" class="btn btn-primary">Salvar</button>
-        <a class="btn btn-secondary">Cancelar</a>
+        <a href="{% url 'listar_servico' %}" class="btn btn-secondary">Cancelar</a>
       </div>
     </form>
   </div>
 </div>
 {% endblock %}
 
-{% block scripts %}
-<script src="{% static 'admin-lte/plugins/select2/js/select2.full.min.js' %}"></script>
-<script>
-  $(function () {
-    $('.select2').select2()
-  })
-</script>
-{% endblock %}
+
+{% block scripts %}{% endblock %}
