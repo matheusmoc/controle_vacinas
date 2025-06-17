@@ -22,7 +22,7 @@
         </div>
         <div class="card-body">
             <iframe 
-                src="{% url 'gerar_carteira_vacinacao' servico.identificador %}" 
+                src="{% url 'gerar_carteira_vacinacao' servico.id %}" 
                 width="100%" 
                 height="600px" 
                 style="border: 1px solid #ccc;">
@@ -30,7 +30,7 @@
         </div>
         <div class="card-footer text-right">
             <a target="_blank" 
-            href="{% url 'gerar_carteira_vacinacao' servico.identificador %}" 
+            href="{% url 'gerar_carteira_vacinacao' servico.id %}" 
             class="btn btn-primary">
                 Baixar PDF
             </a>

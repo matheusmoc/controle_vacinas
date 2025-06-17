@@ -27,13 +27,13 @@ def listar_servico(request):
         servicos = Servico.objects.all()
         return render(request, 'listar_servico.html', {'servicos': servicos})
 
-def servico(request, identificador):       #coluna       #filtro passado por paramento
-    servico = get_object_or_404(Servico, identificador=identificador )
-    # return HttpResponse(identificador)
+def servico(request, id):     
+    servico = get_object_or_404(Servico, id=id )
+    # return HttpResponse(id)
     return render(request, 'servico.html',{'servico' : servico})
 
-def gerar_carteira_vacinacao(request, identificador):
-    servico = get_object_or_404(Servico, identificador = identificador)
+def gerar_carteira_vacinacao(request, id):
+    servico = get_object_or_404(Servico, id = id)
     
     pdf = FPDF() #INSTANCIA PARA GERAR AS CARTEIRINHAS
     pdf.add_page()

@@ -17,6 +17,41 @@ import json
 import re
 
 
+class ResponsaveisViewAPI(View):
+    def get(self, request):
+        try:
+            responsaveis = Responsavel.objects.get()
+            return JsonResponse({'responsaveis': responsaveis})
+        except Responsavel.DoesNotExist:
+            responsaveis = None
+    
+def post(self, request):
+    data = request.POST 
+
+    responsaveis = Responsavel.objects.all()
+    lista_responsaveis = []
+
+    for r in responsaveis:
+        lista_responsaveis.append({
+            "nome": r.nome,
+            "sobrenome": r.sobrenome,
+            "email": r.email,
+            "cpf": r.cpf,
+            "rg": r.rg,
+            "telefone": r.telefone,
+            "data_nascimento": r.data_nascimento.strftime('%Y-%m-%d') if r.data_nascimento else None,
+            "parentesco": r.parentesco,
+            "endereco": r.endereco,
+            "numero": r.numero,
+            "complemento": r.complemento,
+            "bairro": r.bairro,
+            "cidade": r.cidade,
+            "estado": r.estado,
+            "cep": r.cep,
+        })
+
+    return JsonResponse({"responsaveis": lista_responsaveis})
+
 class PacienteView(View):
     def get(self, request):
         return render(request, 'pacientes.html')
@@ -32,6 +67,7 @@ class PacienteViewAPI(View):
         cpf = request.POST.get('cpf')
         data_nascimento = request.POST.get('data_nascimento')
         vacinas_json = request.POST.get('vacinas')
+        data_vacinacao = request.POST.get('data_vacinacao')
 
         if Paciente.objects.filter(cpf=cpf).exists():
             return JsonResponse({'status': 400, 'message': 'Paciente com este CPF já existe.'})
@@ -40,12 +76,17 @@ class PacienteViewAPI(View):
             vacinas = json.loads(vacinas_json)
         except (TypeError, json.JSONDecodeError):
             return JsonResponse({'status': 400, 'message': 'Erro ao processar vacinas.'})
+        
+        try:
+            data_nascimento_str = datetime.strptime(data_nascimento, "%Y-%m-%d").date()
+        except (TypeError, ValueError):
+            return JsonResponse({'status': 400, 'message': 'Data de nascimento inválida. Use o formato YYYY-MM-DD.'})
 
         paciente = Paciente.objects.create(
             nome=nome,
             sobrenome=sobrenome,
             cpf=cpf,
-            data_nascimento=data_nascimento
+            data_nascimento=data_nascimento_str
         )
 
         for v in vacinas:
@@ -54,10 +95,17 @@ class PacienteViewAPI(View):
                 fabricante=v['fabricante'],
                 codigo=v['codigo']
             )
+
+            data_vacinacao_str = v.get('data_vacinacao', data_vacinacao)
+            try:
+                data_vacinacao = datetime.strptime(data_vacinacao_str, "%Y-%m-%d").date() if data_vacinacao_str else None
+            except ValueError:
+                return JsonResponse({'status': 400, 'message': f'Data de vacinação inválida para vacina {v.get("vacina")}.'})
+                                    
             PacienteVacina.objects.create(
                 paciente=paciente,
                 vacina=vacina,
-                data_vacinacao=request.POST.get('data_vacinacao')
+                data_vacinacao=data_vacinacao
             )
 
         return JsonResponse({'status': 200, 'message': 'Paciente e vacinas cadastrados com sucesso!'})

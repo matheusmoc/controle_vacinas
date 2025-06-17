@@ -33,14 +33,45 @@ class CustomUser(AbstractUser):
     role = models.CharField(max_length=50, choices=ROLE_CHOICES, default='medical_assistant')
 
 class Responsavel(models.Model):
+    PARENTESCO_CHOICES = [
+        ('pai', 'Pai'),
+        ('mae', 'Mãe'),
+        ('avo', 'Avô/Avó'),
+        ('tio', 'Tio(a)'),
+        ('outro', 'Outro'),
+    ]
+
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
-    nome = models.CharField(max_length=254, null=True, blank=True)
-    sobrenome = models.CharField(max_length=254, null=True, blank=True)
-    email = models.EmailField(max_length=254, null=True, blank=True)
-    cpf = models.CharField(max_length=14, null=True, blank=True)
+    nome = models.CharField("Nome", max_length=254, null=True, blank=True)
+    sobrenome = models.CharField("Sobrenome", max_length=254, null=True, blank=True)
+    email = models.EmailField("Email", max_length=254, null=True, blank=True)
+    cpf = models.CharField("CPF", max_length=14, null=True, blank=True)
+    rg = models.CharField("RG", max_length=20, null=True, blank=True)
+    telefone = models.CharField("Telefone", max_length=20, null=True, blank=True)
+    data_nascimento = models.DateField("Data de nascimento", null=True, blank=True)
+    parentesco = models.CharField("Parentesco com a criança", max_length=10, choices=PARENTESCO_CHOICES, null=True, blank=True)
+
+    endereco = models.CharField("Endereço", max_length=255, null=True, blank=True)
+    numero = models.CharField("Número", max_length=10, null=True, blank=True)
+    complemento = models.CharField("Complemento", max_length=50, null=True, blank=True)
+    bairro = models.CharField("Bairro", max_length=100, null=True, blank=True)
+    cidade = models.CharField("Cidade", max_length=100, null=True, blank=True)
+    estado = models.CharField("Estado", max_length=2, null=True, blank=True)
+    cep = models.CharField("CEP", max_length=9, null=True, blank=True)
+
+    observacoes = models.TextField("Observações", null=True, blank=True)
 
     def __str__(self) -> str:
-        return f"{self.nome} {self.sobrenome}" if self.nome and self.sobrenome else "Responsável"
+        if self.nome and self.sobrenome:
+            return f"{self.nome} {self.sobrenome}"
+        elif self.nome:
+            return self.nome
+        else:
+            return "Responsável"
+
+    class Meta:
+        verbose_name = "Responsável"
+        verbose_name_plural = "Responsáveis"
 
 class Paciente(models.Model):
     responsavel = models.ForeignKey(Responsavel, on_delete=models.CASCADE, related_name='dependentes', null=True, blank=True)
@@ -48,6 +79,7 @@ class Paciente(models.Model):
     sobrenome = models.CharField(max_length=254, null=True, blank=True)
     data_nascimento = models.DateField(null=True, blank=True)
     cpf = models.CharField(max_length=14, null=True, blank=True)
+    responsavel = models.ForeignKey(Responsavel, on_delete=models.CASCADE, related_name='dependentes', null=True, blank=True)
 
     def __str__(self) -> str:
         return f"{self.nome} {self.sobrenome}" if self.nome and self.sobrenome else "Paciente"

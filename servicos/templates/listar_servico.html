@@ -26,7 +26,7 @@
         <tbody>
           {% for servico in servicos %}
           <tr>
-            <td><a href="{% url 'servico' servico.identificador %}">{{ servico.identificador }}</a></td>
+            <td><a href="{% url 'servico' servico.id %}">{{ servico.id }}</a></td>
             <td>{{ servico.unidade }}</td>
             <td>{{ servico.protocolo }}</td>
             <td>{{ servico.paciente.nome }} {{ servico.paciente.sobrenome }}</td>
